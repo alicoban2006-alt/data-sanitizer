@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Coffee, Heart, X, ExternalLink, Check, Copy, Sparkles } from 'lucide-react';
+import { Coffee, X, ExternalLink, Check, Copy, Sparkles, Heart } from 'lucide-react';
 import { Language, translations } from '@/lib/i18n';
 
 interface SupportModalProps {
@@ -12,14 +12,15 @@ interface SupportModalProps {
 
 export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
   const t = translations[lang];
-  const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const bmacUrl = 'https://buymeacoffee.com/alicoban';
 
   if (!isOpen) return null;
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedLink(id);
-    setTimeout(() => setCopiedLink(null), 2000);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(bmacUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   return (
@@ -29,7 +30,7 @@ export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow accent */}
-        <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Close Button */}
@@ -60,76 +61,41 @@ export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
           {t.coffeeBody}
         </p>
 
-        {/* Support Options */}
-        <div className="space-y-3 mb-6">
-          {/* Ko-fi Link */}
-          <a
-            href="https://ko-fi.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 hover:border-amber-500/50 transition-all duration-200"
-          >
+        {/* Dedicated Buy Me a Coffee Card */}
+        <div className="p-5 rounded-2xl bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 mb-2">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">☕</span>
-              <div className="text-left">
-                <div className="text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors">
-                  {t.kofiTitle}
+              <span className="text-3xl">☕</span>
+              <div>
+                <div className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                  Ali (DataPurge)
+                  <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
                 </div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">{t.kofiSub}</div>
+                <div className="text-xs font-mono text-amber-600 dark:text-amber-400 font-medium">
+                  buymeacoffee.com/alicoban
+                </div>
               </div>
             </div>
-            <ExternalLink className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
-          </a>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-xs font-mono text-neutral-700 dark:text-neutral-300 transition-colors"
+              title="Copy Link"
+            >
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedLink ? t.linkCopied : t.copyLink}</span>
+            </button>
+          </div>
 
-          {/* GitHub Sponsors */}
           <a
-            href="https://github.com/sponsors"
+            href={bmacUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 hover:border-pink-500/50 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm text-neutral-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-400 shadow-md shadow-amber-500/20 active:scale-[0.99] transition-all"
           >
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-pink-500" />
-              <div className="text-left">
-                <div className="text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-pink-500 dark:group-hover:text-pink-300 transition-colors">
-                  {t.githubSponsorsTitle}
-                </div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">{t.githubSponsorsSub}</div>
-              </div>
-            </div>
-            <ExternalLink className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
+            <Coffee className="w-4 h-4 stroke-[2.5]" />
+            <span>{lang === 'tr' ? "Ali'ye Kahve Ismarla" : 'Buy Ali a Coffee'}</span>
+            <ExternalLink className="w-4 h-4 stroke-[2.2] ml-0.5" />
           </a>
-
-          {/* Buy Me a Coffee direct link */}
-          <a
-            href="https://buymeacoffee.com/alicoban"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 hover:border-amber-500/50 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">💛</span>
-              <div className="text-left">
-                <div className="text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors">
-                  {t.bmacTitle}
-                </div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">buymeacoffee.com/alicoban</div>
-              </div>
-            </div>
-            <ExternalLink className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
-          </a>
-        </div>
-
-        {/* Tip: Link Customize Note */}
-        <div className="p-3 rounded-lg bg-neutral-100 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
-          <span>{t.modalTip}</span>
-          <button
-            onClick={() => handleCopy('https://buymeacoffee.com/alicoban', 'bmac')}
-            className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors shrink-0 ml-2 font-mono text-[11px]"
-          >
-            {copiedLink === 'bmac' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedLink === 'bmac' ? t.linkCopied : t.copyLink}
-          </button>
         </div>
       </div>
     </div>
