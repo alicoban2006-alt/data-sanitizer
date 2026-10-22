@@ -113,7 +113,7 @@ export function Navbar({
 
           {/* GitHub link */}
           <a
-            href="https://github.com"
+            href="https://github.com/alicoban2006-alt/data-sanitizer"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"

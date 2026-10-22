@@ -102,7 +102,7 @@ export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
 
           {/* Buy Me a Coffee direct link */}
           <a
-            href="https://buymeacoffee.com"
+            href="https://buymeacoffee.com/alicoban"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center justify-between p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/60 hover:border-amber-500/50 transition-all duration-200"
@@ -113,7 +113,7 @@ export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
                 <div className="text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-300 transition-colors">
                   {t.bmacTitle}
                 </div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">{t.bmacSub}</div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">buymeacoffee.com/alicoban</div>
               </div>
             </div>
             <ExternalLink className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
@@ -124,7 +124,7 @@ export function SupportModal({ isOpen, onClose, lang }: SupportModalProps) {
         <div className="p-3 rounded-lg bg-neutral-100 dark:bg-neutral-950/60 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
           <span>{t.modalTip}</span>
           <button
-            onClick={() => handleCopy('https://buymeacoffee.com', 'bmac')}
+            onClick={() => handleCopy('https://buymeacoffee.com/alicoban', 'bmac')}
             className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors shrink-0 ml-2 font-mono text-[11px]"
           >
             {copiedLink === 'bmac' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

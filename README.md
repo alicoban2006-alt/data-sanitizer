@@ -1,6 +1,7 @@
 # ⚡ DataPurge — Client-Side JSON Repair, Text Sanitizer & Multi-Format Converter
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-data--sanitizer--pied.vercel.app-blue?style=for-the-badge&logo=vercel)](https://data-sanitizer-pied.vercel.app)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/alicoban)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-100%25%20In--Browser%20Memory-brightgreen?style=for-the-badge)](https://data-sanitizer-pied.vercel.app)
 [![Next.js 14](https://img.shields.io/badge/Built%20With-Next.js%2014%20%2B%20TailwindCSS-000000?style=for-the-badge&logo=next.js)](https://data-sanitizer-pied.vercel.app)
 
