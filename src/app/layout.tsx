@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DataPurge — JSON & Text Data Sanitizer for Developers",
-  description: "Clean dirty texts, repair malformed JSONs, remove zero-width characters and format in real-time.",
+  title: "DataPurge — Fast Data Sanitizer & Format Converter for Developers",
+  description: "Strip invisible zero-width characters, repair malformed JSON, fix smart quotes, and convert YAML/XML/CSV in real-time. 100% in-browser.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="tr"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-neutral-950 text-neutral-100 selection:bg-cyan-500/30 selection:text-cyan-200">

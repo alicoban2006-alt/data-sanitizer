@@ -1,0 +1,37 @@
+{
+  "version": "1.1.0",
+  "strategy": "Smart Trial-and-Error (Auto-Prune if Filtered)",
+  "liveUrl": "https://data-sanitizer-pied.vercel.app",
+  "candidates": [
+    {
+      "subreddit": "devtools",
+      "flair": null,
+      "title": "made a quick client-side tool to clean broken JSON and zero-width spaces",
+      "body": "Hey everyone, Built a small in-browser utility over the weekend to fix a recurring annoyance: invisible unicode characters (like \\u200B from Notion) breaking JSON parsers, unquoted keys, and smart quotes.\n\nEverything runs completely in the browser memory so no data gets sent anywhere: https://data-sanitizer-pied.vercel.app\n\nCurious what edge cases or format converters you guys would find handy to add to it!"
+    },
+    {
+      "subreddit": "Frontend",
+      "flair": null,
+      "title": "Built a small in-browser tool to kill invisible zero-width spaces and clean JSON",
+      "body": "Hey r/Frontend,\n\nYesterday I wasted almost an hour debugging a JSON config that turned out to be an invisible zero-width space copied from Notion.\n\nI put together a quick tool with Next.js and Tailwind that auto-repairs malformed JSON, strips rogue unicode/smart quotes, and converts between JSON, YAML, and CSV in real time.\n\n100% client-side with zero telemetry: https://data-sanitizer-pied.vercel.app\n\nHope this saves someone else from the same headache!"
+    },
+    {
+      "subreddit": "roastmystartup",
+      "flair": null,
+      "title": "DataPurge: In-browser JSON repair & dirty text sanitizer. Roast it.",
+      "body": "Hey all,\n\nI got annoyed at existing online formatters that send your private API tokens to their servers and bombard you with video ads.\n\nSo I built DataPurge — a client-side tool that fixes malformed JSON (missing quotes, trailing commas, Python booleans), removes hidden zero-width spaces from Notion/Slack, and converts between JSON/YAML/XML/CSV in real time.\n\nSite: https://data-sanitizer-pied.vercel.app\n\nRoast the UI, the utility, or tell me why nobody will ever bookmark this."
+    },
+    {
+      "subreddit": "alphaandbetausers",
+      "flair": null,
+      "title": "DataPurge – Instant in-browser data sanitizer and format converter",
+      "body": "Hi all,\n\nLooking for beta testers for DataPurge, a lightweight developer utility that cleans dirty JSON, unescapes logs, strips zero-width spaces, and converts JSON/YAML/XML/CSV completely in your browser memory.\n\nLive tool: https://data-sanitizer-pied.vercel.app\n\nWould love feedback on edge-cases and performance!"
+    },
+    {
+      "subreddit": "softwaretools",
+      "flair": null,
+      "title": "A zero-telemetry in-browser JSON repair & text sanitizer tool",
+      "body": "Built a small utility to fix malformed JSON, strip invisible zero-width spaces from Notion/Slack copy-pastes, and convert formats (JSON/YAML/CSV) locally without sending any data to a server.\n\nCheck it out: https://data-sanitizer-pied.vercel.app"
+    }
+  ]
+}

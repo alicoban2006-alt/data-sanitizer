@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { 
   Copy, 
   Check, 
@@ -10,7 +10,6 @@ import {
   FileWarning, 
   Info, 
   Trash2, 
-  ArrowRightLeft,
   Sparkles,
   Zap,
   ShieldCheck,
@@ -19,8 +18,11 @@ import {
 import { Navbar } from './Navbar';
 import { Toolbar } from './Toolbar';
 import { SupportModal } from './SupportModal';
+import { StatsBar } from './StatsBar';
+import { FormatConverterView } from './FormatConverterView';
 import { sanitizeData, DEFAULT_OPTIONS, SanitizerOptions } from '@/lib/sanitizer';
 import { SAMPLES, SampleData } from '@/lib/samples';
+import { Language, translations } from '@/lib/i18n';
 
 export function SanitizerApp() {
   const [input, setInput] = useState<string>(SAMPLES[0].data);
@@ -28,47 +30,88 @@ export function SanitizerApp() {
   const [copied, setCopied] = useState<boolean>(false);
   const [isCoffeeOpen, setIsCoffeeOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  
+  // Default language: English (en)
+  const [lang, setLang] = useState<Language>('en');
+  
+  // Theme state: default dark
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  
+  // Tab state: 'sanitizer' vs 'converter'
+  const [activeTab, setActiveTab] = useState<'sanitizer' | 'converter'>('sanitizer');
 
-  // Compute sanitized output in real-time
+  // Load language and theme from localStorage on client mount
+  useEffect(() => {
+    const savedLang = localStorage.getItem('datapurge-lang') as Language | null;
+    if (savedLang === 'en' || savedLang === 'tr') {
+      setLang(savedLang);
+    }
+
+    const savedTheme = localStorage.getItem('datapurge-theme') as 'dark' | 'light' | null;
+    const initialTheme = savedTheme || 'dark';
+    setTheme(initialTheme);
+    if (initialTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleLang = () => {
+    const nextLang: Language = lang === 'en' ? 'tr' : 'en';
+    setLang(nextLang);
+    localStorage.setItem('datapurge-lang', nextLang);
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('datapurge-theme', nextTheme);
+    if (nextTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const t = translations[lang];
+
+  // Real-time pure sanitization calculation
   const result = useMemo(() => {
     return sanitizeData(input, options);
   }, [input, options]);
 
-  // Show a temporary toast notification
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage((curr) => (curr === msg ? null : curr));
     }, 2500);
-  };
+  }, []);
 
-  // Copy to clipboard with sleek feedback
   const handleCopy = async () => {
     if (!result.output) return;
     try {
       await navigator.clipboard.writeText(result.output);
       setCopied(true);
-      showToast('Panoya başarıyla kopyalandı!');
+      showToast(t.toastCopied);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showToast('Kopyalama başarısız oldu.');
+      showToast(t.toastCopyFailed);
     }
   };
 
-  // Paste from clipboard
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
       if (text) {
         setInput(text);
-        showToast('Panodan yapıştırıldı.');
+        showToast(t.toastPasted);
       }
     } catch {
-      showToast('Panoya erişim izni verilmedi.');
+      showToast(t.toastPasteDenied);
     }
   };
 
-  // Download cleaned file
   const handleDownload = () => {
     if (!result.output) return;
     const isJson = result.isJson && result.jsonValid;
@@ -84,316 +127,371 @@ export function SanitizerApp() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast(`${filename} indirildi.`);
+    showToast(`${filename} ${t.toastDownloaded}`);
   };
 
   const handleSelectSample = (sample: SampleData) => {
     setInput(sample.data);
-    showToast(`"${sample.label}" örneği yüklendi.`);
+    showToast(`${t.toastSampleLoaded} (${sample.label})`);
   };
 
   const handleClear = () => {
     setInput('');
-    showToast('Temizlendi.');
+    showToast(t.toastCleared);
   };
 
-  // Calculate lines count
   const inputLines = input ? input.split('\n').length : 0;
   const outputLines = result.output ? result.output.split('\n').length : 0;
 
-  // Format bytes for display
   const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     return `${(bytes / 1024).toFixed(1)} KB`;
   };
 
-  // Delta calculation
   const sizeDiff = result.inputByteCount > 0 
     ? Math.round(((result.outputByteCount - result.inputByteCount) / result.inputByteCount) * 100)
     : 0;
 
-  return (
-    <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Top Navbar */}
-      <Navbar onOpenCoffee={() => setIsCoffeeOpen(true)} />
+  const sanitizerFixes = 
+    result.stats.invisibleCharsRemoved +
+    result.stats.ansiCodesRemoved +
+    result.stats.quotesNormalized +
+    result.stats.commentsRemoved +
+    (result.stats.jsonRepaired ? 1 : 0) +
+    result.stats.maskedCount;
 
-      {/* Action Toolbar */}
-      <Toolbar
-        options={options}
-        onOptionsChange={setOptions}
-        onSelectSample={handleSelectSample}
-        onClear={handleClear}
-        hasInput={Boolean(input)}
+  return (
+    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200 transition-colors">
+      {/* Top Navbar */}
+      <Navbar 
+        onOpenCoffee={() => setIsCoffeeOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        lang={lang}
+        onToggleLang={toggleLang}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
       />
 
-      {/* Main Workspace: Split Pane */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-4">
-        {/* Editor Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-[580px]">
-          {/* Left Editor: Input */}
-          <div className="flex flex-col bg-neutral-900/70 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl focus-within:border-cyan-500/50 transition-colors">
-            {/* Left Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-neutral-900/90 border-b border-neutral-800">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80 animate-pulse" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                  Ham / Kirli Veri Girişi
-                </span>
-                {result.isJson && (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-                    JSON Algılandı
-                  </span>
-                )}
-              </div>
-
-              {/* Input action buttons */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={handlePaste}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-750 transition-colors"
-                  title="Panodan Yapıştır"
-                >
-                  <ClipboardPaste className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Yapıştır</span>
-                </button>
-                {input && (
-                  <button
-                    onClick={handleClear}
-                    className="p-1 rounded-md text-neutral-400 hover:text-rose-400 hover:bg-neutral-800 transition-colors"
-                    title="İçeriği Sil"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Input Textarea */}
-            <div className="flex-1 relative">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Kirli metni, bozuk JSON kodunu, terminal loglarını veya veritabanı dizgisini buraya yapıştırın..."
-                spellCheck={false}
-                className="w-full h-full min-h-[420px] lg:min-h-[500px] p-4 bg-transparent text-neutral-200 font-mono text-[13px] leading-relaxed resize-none focus:outline-none placeholder:text-neutral-600"
-              />
-            </div>
-
-            {/* Left Footer: Stats */}
-            <div className="px-4 py-2 bg-neutral-900/90 border-t border-neutral-800 text-[11px] font-mono text-neutral-400 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span>{result.inputCharCount} karakter</span>
-                <span>•</span>
-                <span>{inputLines} satır</span>
-                <span>•</span>
-                <span>{formatBytes(result.inputByteCount)}</span>
-              </div>
-              <span className="text-neutral-500 hidden sm:inline">Ctrl + V ile yapıştır</span>
-            </div>
+      {/* Hero Headline / Value Statement */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200/60 dark:border-neutral-800/60 pb-4">
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
+              <span>{t.heroTitle}</span>
+            </h1>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 max-w-2xl">
+              {t.heroSubtitle}
+            </p>
           </div>
 
-          {/* Right Editor: Output */}
-          <div className="flex flex-col bg-neutral-900/70 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl focus-within:border-emerald-500/50 transition-colors">
-            {/* Right Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-neutral-900/90 border-b border-neutral-800">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
-                  Temizlenmiş Çıktı
-                </span>
-
-                {/* Validation Badge */}
-                {result.output ? (
-                  result.jsonValid ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/40">
-                      <FileCheck2 className="w-3 h-3" />
-                      Geçerli JSON
-                    </span>
-                  ) : result.warnings.length > 0 ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/40">
-                      <FileWarning className="w-3 h-3" />
-                      Metin Formatı
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">
-                      Temiz Metin
-                    </span>
-                  )
-                ) : null}
-              </div>
-
-              {/* Right action buttons: Download & COPY TO CLIPBOARD */}
-              <div className="flex items-center gap-2">
-                {result.output && (
-                  <button
-                    onClick={handleDownload}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-750 transition-colors"
-                    title="Dosya Olarak İndir"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">İndir</span>
-                  </button>
-                )}
-
-                {/* Prominent Copy to Clipboard Button */}
-                <button
-                  onClick={handleCopy}
-                  disabled={!result.output}
-                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-md active:scale-95 ${
-                    copied
-                      ? 'bg-emerald-500 text-neutral-950 shadow-emerald-500/20'
-                      : 'bg-cyan-500 hover:bg-cyan-400 text-neutral-950 shadow-cyan-500/20 disabled:opacity-40 disabled:pointer-events-none'
-                  }`}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 stroke-[2.5]" />
-                      <span>Kopyalandı!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 stroke-[2.2]" />
-                      <span>Panoya Kopyala</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Output Area */}
-            <div className="flex-1 relative bg-neutral-950/40">
-              <textarea
-                readOnly
-                value={result.output}
-                placeholder="Temizlenen sonuç burada anlık (real-time) olarak görünecektir..."
-                spellCheck={false}
-                className="w-full h-full min-h-[420px] lg:min-h-[500px] p-4 bg-transparent text-emerald-300/90 font-mono text-[13px] leading-relaxed resize-none focus:outline-none placeholder:text-neutral-700 select-all"
-              />
-            </div>
-
-            {/* Right Footer: Stats & Diffs */}
-            <div className="px-4 py-2 bg-neutral-900/90 border-t border-neutral-800 text-[11px] font-mono text-neutral-400 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span>{result.outputCharCount} karakter</span>
-                <span>•</span>
-                <span>{outputLines} satır</span>
-                <span>•</span>
-                <span>{formatBytes(result.outputByteCount)}</span>
-                {result.inputByteCount > 0 && (
-                  <span className={`font-semibold ${sizeDiff < 0 ? 'text-emerald-400' : 'text-neutral-400'}`}>
-                    ({sizeDiff > 0 ? `+${sizeDiff}` : sizeDiff}%)
-                  </span>
-                )}
-              </div>
-              <span className="text-emerald-400/80 font-medium hidden sm:inline">Anlık Senkronize Edildi</span>
-            </div>
+          <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>{t.heroBadge}</span>
           </div>
         </div>
+      </div>
 
-        {/* Live Transformation Report Card */}
-        {(result.stats.invisibleCharsRemoved > 0 ||
-          result.stats.ansiCodesRemoved > 0 ||
-          result.stats.quotesNormalized > 0 ||
-          result.stats.jsonRepaired ||
-          result.stats.commentsRemoved > 0 ||
-          result.stats.maskedCount > 0 ||
-          result.warnings.length > 0) && (
-          <div className="p-4 rounded-xl bg-neutral-900/90 border border-neutral-800 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 animate-in fade-in">
-            <div className="flex items-center gap-2 text-cyan-400 font-semibold">
-              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>Yapılan Temizleme İşlemleri:</span>
+      {/* Action Toolbar (Only in Sanitizer tab) */}
+      {activeTab === 'sanitizer' && (
+        <Toolbar
+          options={options}
+          onOptionsChange={setOptions}
+          onSelectSample={handleSelectSample}
+          onClear={handleClear}
+          hasInput={Boolean(input)}
+          lang={lang}
+        />
+      )}
+
+      {/* Main Workspace */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:px-6 lg:px-8 flex flex-col gap-5">
+        {activeTab === 'converter' ? (
+          /* Multi-Format Converter View (Free of any render freeze!) */
+          <FormatConverterView 
+            onNotify={showToast} 
+            lang={lang}
+          />
+        ) : (
+          /* Sanitizer & Repair View */
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[500px]">
+              {/* Left Editor: Input */}
+              <div className="flex flex-col bg-white dark:bg-neutral-900/70 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-xl focus-within:border-cyan-500/50 transition-colors">
+                <div className="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-900/90 border-b border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80 animate-pulse" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                      {t.rawInput}
+                    </span>
+                    {result.isJson && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800/40">
+                        {t.jsonDetected}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={handlePaste}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white bg-neutral-200/60 dark:bg-neutral-800 hover:bg-neutral-300/60 dark:hover:bg-neutral-750 transition-colors"
+                      title={t.paste}
+                    >
+                      <ClipboardPaste className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">{t.paste}</span>
+                    </button>
+                    {input && (
+                      <button
+                        onClick={handleClear}
+                        className="p-1 rounded-md text-neutral-400 hover:text-rose-500 transition-colors"
+                        title={t.clear}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 relative">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={t.inputPlaceholder}
+                    spellCheck={false}
+                    className="w-full h-full min-h-[380px] lg:min-h-[460px] p-4 bg-transparent text-neutral-800 dark:text-neutral-200 font-mono text-[13px] leading-relaxed resize-none focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
+                  />
+                </div>
+
+                <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-900/90 border-t border-neutral-200 dark:border-neutral-800 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span>{result.inputCharCount} {t.chars}</span>
+                    <span>•</span>
+                    <span>{inputLines} {t.lines}</span>
+                    <span>•</span>
+                    <span>{formatBytes(result.inputByteCount)}</span>
+                  </div>
+                  <span className="text-neutral-400 dark:text-neutral-500 hidden sm:inline">{t.pasteShortcut}</span>
+                </div>
+              </div>
+
+              {/* Right Editor: Output */}
+              <div className="flex flex-col bg-white dark:bg-neutral-900/70 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-xl focus-within:border-emerald-500/50 transition-colors">
+                <div className="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-900/90 border-b border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                      {t.cleanedOutput}
+                    </span>
+
+                    {result.output ? (
+                      result.jsonValid ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/40">
+                          <FileCheck2 className="w-3 h-3" />
+                          {t.validJson}
+                        </span>
+                      ) : result.warnings.length > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/40">
+                          <FileWarning className="w-3 h-3" />
+                          {t.textFormat}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                          {t.plainText}
+                        </span>
+                      )
+                    ) : null}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {result.output && (
+                      <button
+                        onClick={handleDownload}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white bg-neutral-200/60 dark:bg-neutral-800 hover:bg-neutral-300/60 dark:hover:bg-neutral-750 transition-colors"
+                        title={t.download}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{t.download}</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={handleCopy}
+                      disabled={!result.output}
+                      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm active:scale-95 ${
+                        copied
+                          ? 'bg-emerald-500 text-neutral-950 shadow-emerald-500/20'
+                          : 'bg-cyan-500 hover:bg-cyan-400 text-neutral-950 shadow-cyan-500/20 disabled:opacity-40 disabled:pointer-events-none'
+                      }`}
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-4 h-4 stroke-[2.5]" />
+                          <span>{t.copied}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 stroke-[2.2]" />
+                          <span>{t.copy}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 relative bg-neutral-50/50 dark:bg-neutral-950/40">
+                  <textarea
+                    readOnly
+                    value={result.output}
+                    placeholder={t.outputPlaceholder}
+                    spellCheck={false}
+                    className="w-full h-full min-h-[380px] lg:min-h-[460px] p-4 bg-transparent text-emerald-800 dark:text-emerald-300/90 font-mono text-[13px] leading-relaxed resize-none focus:outline-none placeholder:text-neutral-400 dark:placeholder:text-neutral-700 select-all"
+                  />
+                </div>
+
+                <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-900/90 border-t border-neutral-200 dark:border-neutral-800 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span>{result.outputCharCount} {t.chars}</span>
+                    <span>•</span>
+                    <span>{outputLines} {t.lines}</span>
+                    <span>•</span>
+                    <span>{formatBytes(result.outputByteCount)}</span>
+                    {result.inputByteCount > 0 && (
+                      <span className={`font-semibold ${sizeDiff < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                        ({sizeDiff > 0 ? `+${sizeDiff}` : sizeDiff}%)
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-emerald-600 dark:text-emerald-400/80 font-medium hidden sm:inline">
+                    {t.realtimeSync}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {result.stats.jsonRepaired && (
-                <span className="px-2.5 py-1 rounded-md bg-cyan-950/80 text-cyan-300 border border-cyan-800/40 font-mono">
-                  ✓ Bozuk JSON Anahtar/Tırnak Yapısı Onarıldı
-                </span>
-              )}
-              {result.stats.invisibleCharsRemoved > 0 && (
-                <span className="px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/40 font-mono">
-                  ✓ {result.stats.invisibleCharsRemoved} Gizli / Zero-Width Karakter Silindi
-                </span>
-              )}
-              {result.stats.quotesNormalized > 0 && (
-                <span className="px-2.5 py-1 rounded-md bg-indigo-950/80 text-indigo-300 border border-indigo-800/40 font-mono">
-                  ✓ {result.stats.quotesNormalized} Akıllı Tırnak ASCII&apos;ye Dönüştürüldü
-                </span>
-              )}
-              {result.stats.ansiCodesRemoved > 0 && (
-                <span className="px-2.5 py-1 rounded-md bg-purple-950/80 text-purple-300 border border-purple-800/40 font-mono">
-                  ✓ {result.stats.ansiCodesRemoved} Terminal Renk / ANSI Kodu Temizlendi
-                </span>
-              )}
-              {result.stats.commentsRemoved > 0 && (
-                <span className="px-2.5 py-1 rounded-md bg-neutral-800 text-neutral-300 border border-neutral-700/60 font-mono">
-                  ✓ {result.stats.commentsRemoved} Yorum Satırı Temizlendi
-                </span>
-              )}
-              {result.stats.maskedCount > 0 && (
-                <span className="px-2.5 py-1 rounded-md bg-amber-950/80 text-amber-300 border border-amber-800/40 font-mono">
-                  ✓ {result.stats.maskedCount} Hassas Veri (Token/E-posta) Maskelendi
-                </span>
-              )}
-            </div>
+            {/* Live Transformation Report Card */}
+            {(result.stats.invisibleCharsRemoved > 0 ||
+              result.stats.ansiCodesRemoved > 0 ||
+              result.stats.quotesNormalized > 0 ||
+              result.stats.jsonRepaired ||
+              result.stats.commentsRemoved > 0 ||
+              result.stats.maskedCount > 0 ||
+              result.warnings.length > 0) && (
+              <div className="p-4 rounded-xl bg-white dark:bg-neutral-900/90 border border-neutral-200 dark:border-neutral-800 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 animate-in fade-in">
+                <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-semibold">
+                  <Sparkles className="w-4 h-4 text-cyan-500 shrink-0" />
+                  <span>{t.fixesTitle}</span>
+                </div>
 
-            {result.warnings.length > 0 && (
-              <div className="text-amber-400/90 text-[11px] font-mono flex items-center gap-1">
-                <Info className="w-3.5 h-3.5" />
-                <span>{result.warnings[0]}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {result.stats.jsonRepaired && (
+                    <span className="px-2.5 py-1 rounded-md bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800/40 font-mono">
+                      ✓ {t.fixJsonRepaired}
+                    </span>
+                  )}
+                  {result.stats.invisibleCharsRemoved > 0 && (
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/40 font-mono">
+                      ✓ {result.stats.invisibleCharsRemoved} {t.fixInvisibleRemoved}
+                    </span>
+                  )}
+                  {result.stats.quotesNormalized > 0 && (
+                    <span className="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800/40 font-mono">
+                      ✓ {result.stats.quotesNormalized} {t.fixQuotesNormalized}
+                    </span>
+                  )}
+                  {result.stats.ansiCodesRemoved > 0 && (
+                    <span className="px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-800/40 font-mono">
+                      ✓ {result.stats.ansiCodesRemoved} {t.fixAnsiRemoved}
+                    </span>
+                  )}
+                  {result.stats.commentsRemoved > 0 && (
+                    <span className="px-2.5 py-1 rounded-md bg-neutral-200/80 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700/60 font-mono">
+                      ✓ {result.stats.commentsRemoved} {t.fixCommentsRemoved}
+                    </span>
+                  )}
+                  {result.stats.maskedCount > 0 && (
+                    <span className="px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/40 font-mono">
+                      ✓ {result.stats.maskedCount} {t.fixMasked}
+                    </span>
+                  )}
+                </div>
+
+                {result.warnings.length > 0 && (
+                  <div className="text-amber-600 dark:text-amber-400/90 text-[11px] font-mono flex items-center gap-1">
+                    <Info className="w-3.5 h-3.5" />
+                    <span>{result.warnings[0]}</span>
+                  </div>
+                )}
               </div>
             )}
-          </div>
+
+            {/* Live Stats Bar in Sanitizer View */}
+            <StatsBar 
+              inputBytes={result.inputByteCount}
+              outputBytes={result.outputByteCount}
+              totalFixes={sanitizerFixes}
+              inputChars={result.inputCharCount}
+              outputChars={result.outputCharCount}
+              latencyMs={1}
+              mode="sanitizer"
+              lang={lang}
+            />
+          </>
         )}
 
-        {/* Feature Highlights / Value Proposition for Micro-SaaS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-neutral-800/60 text-neutral-400 text-xs">
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-neutral-900/40 border border-neutral-800/60">
-            <Zap className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+        {/* Human, authentic developer value props */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-800/60 text-neutral-500 dark:text-neutral-400 text-xs">
+          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/60 shadow-xs">
+            <Zap className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-neutral-200 block mb-0.5">Bozuk JSON Kurtarma</span>
-              Tırnaksız nesne anahtarları, tek tırnaklar, Python Boolean (True/False/None) ve fazlalık virgülleri tek tıkla onarır.
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200 block mb-0.5">
+                {t.prop1Title}
+              </span>
+              {t.prop1Desc}
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-neutral-900/40 border border-neutral-800/60">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/60 shadow-xs">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-neutral-200 block mb-0.5">Sıfır Veri Sızıntısı</span>
-              Tüm işlemler %100 tarayıcı belleğinde (Client-side) gerçekleşir. Hiçbir sunucuya veri gönderilmez.
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200 block mb-0.5">
+                {t.prop2Title}
+              </span>
+              {t.prop2Desc}
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-neutral-900/40 border border-neutral-800/60">
-            <Code className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/60 shadow-xs">
+            <Code className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-neutral-200 block mb-0.5">Gizli Karakter & ANSI Temizleyici</span>
-              Slack, Notion veya ChatGPT kopyalamalarından gelen zero-width space ve Docker log kodlarını ayıklar.
+              <span className="font-semibold text-neutral-800 dark:text-neutral-200 block mb-0.5">
+                {t.prop3Title}
+              </span>
+              {t.prop3Desc}
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-800/80 bg-neutral-950 py-6 text-center text-xs text-neutral-500">
+      <footer className="border-t border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-neutral-950 py-6 text-center text-xs text-neutral-500 transition-colors">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>
-            DataPurge.dev &copy; 2026 — Geliştiriciler &amp; Veri Analistleri için Minimalist Micro-SaaS.
+            DataPurge.dev &copy; 2026 — {t.footerText}
           </p>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsCoffeeOpen(true)}
-              className="text-amber-400 hover:text-amber-300 transition-colors"
+              className="text-amber-500 hover:text-amber-600 transition-colors font-medium"
             >
-              Destek Ol ☕
+              {t.buyCoffee} ☕
             </button>
             <a
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-neutral-300 transition-colors"
+              className="hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
             >
-              Açık Kaynak
+              {t.openSource}
             </a>
           </div>
         </div>
@@ -401,8 +499,8 @@ export function SanitizerApp() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-xs font-medium text-white animate-in slide-in-from-bottom-2 duration-200">
-          <Check className="w-4 h-4 text-emerald-400" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-2xl text-xs font-semibold animate-in slide-in-from-bottom-2 duration-200">
+          <Check className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -411,6 +509,7 @@ export function SanitizerApp() {
       <SupportModal
         isOpen={isCoffeeOpen}
         onClose={() => setIsCoffeeOpen(false)}
+        lang={lang}
       />
     </div>
   );

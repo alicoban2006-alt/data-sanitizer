@@ -1,68 +1,70 @@
-# ⚡ DataPurge.dev — JSON & Text Data Sanitizer
+# ⚡ DataPurge — Client-Side JSON Repair, Text Sanitizer & Multi-Format Converter
 
-> **Micro-SaaS Utility:** Geliştiriciler, DevOps mühendisleri ve veri analistleri için kirli metinleri, bozuk JSON'ları ve gizli Unicode karakterlerini anında temizleyen yüksek performanslı web aracı.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-data--sanitizer--pied.vercel.app-blue?style=for-the-badge&logo=vercel)](https://data-sanitizer-pied.vercel.app)
+[![Zero Telemetry](https://img.shields.io/badge/Privacy-100%25%20In--Browser%20Memory-brightgreen?style=for-the-badge)](https://data-sanitizer-pied.vercel.app)
+[![Next.js 14](https://img.shields.io/badge/Built%20With-Next.js%2014%20%2B%20TailwindCSS-000000?style=for-the-badge&logo=next.js)](https://data-sanitizer-pied.vercel.app)
 
----
+> **Live Production Tool:** [data-sanitizer-pied.vercel.app](https://data-sanitizer-pied.vercel.app)
 
-## 🎯 Özellikler
-
-- **Bozuk JSON Onarımı:** Tırnaksız nesne anahtarları (`{key: "val"}`), tek tırnaklar, Python Boolean değerleri (`True`, `False`, `None`) ve fazlalık virgülleri otomatik onarır.
-- **Görünmez Karakter & Zero-Width Avcısı:** Notion, Slack veya web sitelerinden kopyalanan görünmez `\u200B` (Zero-Width Space), `\uFEFF` (BOM) gibi derleyici patlatan karakterleri sıfırlar.
-- **Akıllı Tırnak & Tipografi Düzeltme:** Curly quotes (`“ ”`, `‘ ’`) karakterlerini standart ASCII tırnaklara (`"`, `'`) çevirir.
-- **Terminal & ANSI Temizliği:** Docker, Jest, Webpack loglarındaki renk kodlarını (`\x1b[32m...`) temizler.
-- **Dizgi Unescape:** Veritabanı ve loglardaki kaçış karakterlerini (`\"`, `\\n`, `\\t`) unescape eder.
-- **Hassas Veri Maskeleme:** JWT Bearer tokenları, API anahtarlarını ve e-postaları `[REDACTED]` ile maskeleme opsiyonu.
-- **%100 İstemci Taraflı (Client-Side):** Veriler hiçbir sunucuya iletilmez, tamamen tarayıcı belleğinde güvenle işlenir.
+An instant, high-performance in-browser utility built for software engineers, DevOps, and data analysts. Fix dirty text, unescape database logs, strip invisible zero-width unicode characters, repair broken JSON syntax, and convert bidirectionally between **JSON, YAML, XML, and CSV** with **0ms server latency and zero data leakage**.
 
 ---
 
-## 🛠️ Yerel Geliştirme (Localhost)
+## 🚀 Why DataPurge?
 
-Projeyi başlatmak için terminalde proje dizinine geçin:
+Every developer encounters the "silent copy-paste bug":
+1. Copying payload samples from Notion, Slack, or Google Docs introduces invisible zero-width spaces (`\u200B`, `\u200C`, `\uFEFF`) or smart quotes (`“`, `”`) that crash JSON parsers and database inserts.
+2. Online formatting utilities send your sensitive customer data, secret API keys, and internal logs to their servers or bombard you with video ads.
+
+**DataPurge runs 100% inside your browser's Web Worker / JavaScript memory.** No network requests are made with your payload.
+
+---
+
+## ✨ Key Capabilities
+
+### 1. 🧹 Deep Text & JSON Sanitization
+- **Invisible Character Stripper:** Strips zero-width spaces (`\u200B`), zero-width non-joiners (`\u200C`), byte order marks (`\uFEFF`), and rogue control characters.
+- **Smart Quote Normalizer:** Converts curly typographic quotes (`“`, `”`, `‘`, `’`) into valid code quotes (`"`, `'`).
+- **ANSI Escape Code Cleaner:** Removes terminal color codes (`\x1b[31m`) from pasted server logs.
+- **Auto JSON Repair:** Adds missing quotes around unquoted object keys, strips illegal trailing commas, and normalizes Python `True`/`False`/`None` into JSON `true`/`false`/`null`.
+- **Secret & Token Masking:** Automatically detects and redacts JWTs, Bearer tokens, passwords, and private API keys before you share logs.
+
+### 2. 🔄 Real-Time Multi-Format Converter
+- **Bidirectional Conversion:** JSON ↔ YAML ↔ XML ↔ CSV.
+- **One-Click Format Swap (`Swap ⇄`):** Instantly switch input and output targets.
+- **Streaming Syntax Validation:** Real-time syntax feedback and human-friendly error highlights.
+
+### 3. 📊 Live Telemetry Dashboard
+- Instant byte count and size comparison.
+- Optimization ratio and error counters.
+- Sub-2ms execution time metrics.
+
+---
+
+## 🛠️ Local Development
 
 ```bash
-cd "C:\Users\alico\.gemini\antigravity\scratch\data-sanitizer"
+# Clone the repository
+git clone https://github.com/alicoban2006-alt/data-sanitizer.git
+cd data-sanitizer
 
-# Geliştirme sunucusunu başlat:
+# Install dependencies
+npm install
+
+# Start local dev server
 npm run dev
-
-# veya Üretim (Production) derlemesi:
-npm run build
-npm run start
 ```
 
-Tarayıcınızda açın: **`http://localhost:3000`**
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🚀 Canlıya Dağıtım (Deploy Rehberi)
+## 🔒 Privacy & Security Guarantee
 
-Bu proje **Next.js App Router** ile hazırlandığı ve tamamen istemci taraflı çalıştığı için **maliyetsiz (0 TL)** barındırılabilir:
-
-### 1. Vercel ile Dağıtım (En Kolay & Önerilen):
-1. Projenizi GitHub'a yükleyin:
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: initial commit for DataPurge micro-saas"
-   git remote add origin https://github.com/<kullanici_adiniz>/datapurge.git
-   git push -u origin main
-   ```
-2. [Vercel.com](https://vercel.com) adresine gidin.
-3. **"Add New Project"** butonuna basarak bu depoyu seçin.
-4. Framework olarak **Next.js** otomatik tanınacaktır. **"Deploy"** butonuna basın. Yaklaşık 45 saniyede ücretsiz `.vercel.app` alan adınızla canlıya geçer!
-
-### 2. Cloudflare Pages ile Dağıtım:
-- Cloudflare Pages panosunda depoyu bağlayın.
-- Build command: `npm run build`
-- Output directory: `.next`
+All parsing, sanitizing, and conversions execute strictly on the client side using browser JavaScript engines. Nothing is ever logged or transmitted.
 
 ---
 
-## ☕ Bağış ve Gelir Modeli (Micro-SaaS)
-Türkiye'den Stripe/PayPal kısıtlamalarına takılmamak adına modal içerisinde:
-- **Ko-fi**
-- **GitHub Sponsors**
-- **Buy Me a Coffee**
+## 📄 License
 
-bağlantıları hazır durumdadır. `src/components/SupportModal.tsx` içerisindeki profil URL'lerini kendinize göre güncelleyebilirsiniz.
+MIT License. Free and open source for developers worldwide.

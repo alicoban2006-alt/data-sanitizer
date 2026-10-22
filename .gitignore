@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
+
+# automation agent
+automation/session-profile/
+automation/screenshots/
+automation/agent.log
