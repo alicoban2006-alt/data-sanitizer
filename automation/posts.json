@@ -1,37 +1,37 @@
 {
-  "version": "1.1.0",
-  "strategy": "Smart Trial-and-Error (Auto-Prune if Filtered)",
-  "liveUrl": "https://data-sanitizer-pied.vercel.app",
+  "version": "2.0.0",
+  "strategy": "GitHub Anchor + Auto-Prune Trial-and-Error",
+  "githubUrl": "https://github.com/alicoban2006-alt/data-sanitizer",
   "candidates": [
     {
       "subreddit": "devtools",
       "flair": null,
-      "title": "made a quick client-side tool to clean broken JSON and zero-width spaces",
-      "body": "Hey everyone, Built a small in-browser utility over the weekend to fix a recurring annoyance: invisible unicode characters (like \\u200B from Notion) breaking JSON parsers, unquoted keys, and smart quotes.\n\nEverything runs completely in the browser memory so no data gets sent anywhere: https://data-sanitizer-pied.vercel.app\n\nCurious what edge cases or format converters you guys would find handy to add to it!"
+      "title": "Built a small client-side tool to auto-repair dirty JSON and strip invisible zero-width spaces",
+      "body": "Hey everyone,\n\nI was dealing with a nasty bug last week where an API payload was failing to parse because of an invisible zero-width space (\\u200B) copied over from Notion.\n\nI put together a quick zero-telemetry utility to handle these silently failing edge cases: stripping invisible unicode, normalizing smart typographic quotes into standard code quotes, auto-repairing unquoted keys/trailing commas, and converting bidirectionally between JSON, YAML, XML, and CSV.\n\nEverything executes locally in client memory so no sensitive payloads or tokens get sent anywhere.\n\nOpen source repository: https://github.com/alicoban2006-alt/data-sanitizer\n\n(Live web app demo is pinned right at the top of the README for anyone who wants to try it directly). Would love feedback on any strange encoding edge-cases you run into!"
     },
     {
       "subreddit": "Frontend",
       "flair": null,
-      "title": "Built a small in-browser tool to kill invisible zero-width spaces and clean JSON",
-      "body": "Hey r/Frontend,\n\nYesterday I wasted almost an hour debugging a JSON config that turned out to be an invisible zero-width space copied from Notion.\n\nI put together a quick tool with Next.js and Tailwind that auto-repairs malformed JSON, strips rogue unicode/smart quotes, and converts between JSON, YAML, and CSV in real time.\n\n100% client-side with zero telemetry: https://data-sanitizer-pied.vercel.app\n\nHope this saves someone else from the same headache!"
+      "title": "Fixing the 'silent copy-paste bug': stripped invisible Unicode & smart quotes client-side",
+      "body": "Hey r/Frontend,\n\nHow many times have you or someone on your team pasted a snippet from Slack or Notion and had JSON.parse() blow up on an invisible zero-width space or curly quotes?\n\nI ended up building an in-browser tool with Next.js and Tailwind to sanitize and convert payloads locally with zero server overhead.\n\nSource code & live demo link in repo: https://github.com/alicoban2006-alt/data-sanitizer\n\nCurious what regex patterns or format converters you guys find most reliable when dealing with untrusted user input."
     },
     {
       "subreddit": "roastmystartup",
       "flair": null,
-      "title": "DataPurge: In-browser JSON repair & dirty text sanitizer. Roast it.",
-      "body": "Hey all,\n\nI got annoyed at existing online formatters that send your private API tokens to their servers and bombard you with video ads.\n\nSo I built DataPurge — a client-side tool that fixes malformed JSON (missing quotes, trailing commas, Python booleans), removes hidden zero-width spaces from Notion/Slack, and converts between JSON/YAML/XML/CSV in real time.\n\nSite: https://data-sanitizer-pied.vercel.app\n\nRoast the UI, the utility, or tell me why nobody will ever bookmark this."
+      "title": "DataPurge: In-browser JSON repair & text sanitizer with zero telemetry. Roast the utility.",
+      "body": "Hey all,\n\nMost online formatters either bombard you with ads or transmit your secret API keys to remote servers.\n\nI built DataPurge — a client-side tool that auto-repairs malformed JSON (missing quotes, Python booleans), removes hidden unicode from Slack/Notion, and converts between JSON/YAML/XML/CSV in real-time.\n\nRepo + Live App: https://github.com/alicoban2006-alt/data-sanitizer\n\nRoast the usefulness, the UI, or tell me why existing developer extensions already make this obsolete."
     },
     {
       "subreddit": "alphaandbetausers",
       "flair": null,
-      "title": "DataPurge – Instant in-browser data sanitizer and format converter",
-      "body": "Hi all,\n\nLooking for beta testers for DataPurge, a lightweight developer utility that cleans dirty JSON, unescapes logs, strips zero-width spaces, and converts JSON/YAML/XML/CSV completely in your browser memory.\n\nLive tool: https://data-sanitizer-pied.vercel.app\n\nWould love feedback on edge-cases and performance!"
+      "title": "DataPurge – Looking for beta testers on a zero-telemetry in-browser data sanitizer",
+      "body": "Hi everyone,\n\nLooking for developers to test edge-cases on DataPurge, an open-source utility that cleans dirty JSON, unescapes database logs, strips invisible zero-width spaces, and converts JSON/YAML/XML/CSV locally in browser memory.\n\nGitHub repo & live web app: https://github.com/alicoban2006-alt/data-sanitizer\n\nAppreciate any feedback on performance or missing format converters!"
     },
     {
       "subreddit": "softwaretools",
       "flair": null,
-      "title": "A zero-telemetry in-browser JSON repair & text sanitizer tool",
-      "body": "Built a small utility to fix malformed JSON, strip invisible zero-width spaces from Notion/Slack copy-pastes, and convert formats (JSON/YAML/CSV) locally without sending any data to a server.\n\nCheck it out: https://data-sanitizer-pied.vercel.app"
+      "title": "A zero-telemetry in-browser tool to repair malformed JSON and clean dirty text",
+      "body": "Built a small utility to fix unquoted keys, trailing commas, and strip invisible zero-width unicode characters from Notion/Slack copy-pastes locally without sending any data over the wire.\n\nProject repo & live app: https://github.com/alicoban2006-alt/data-sanitizer"
     }
   ]
 }

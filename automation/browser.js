@@ -46,65 +46,60 @@ async function checkIfRemoved(page) {
 // Automatically delete a removed post so the user profile stays 100% clean
 async function deleteCurrentPost(page) {
   try {
-    // 1. Click the overflow menu button (...)
-    const overflowClicked = await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll('button, shreddit-overflow-menu'));
-      const menuBtn = buttons.find((b) => {
-        const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-        const testid = (b.getAttribute('data-testid') || '').toLowerCase();
-        return (
-          aria.includes('daha fazla') ||
-          aria.includes('more') ||
-          aria.includes('overflow') ||
-          testid.includes('overflow') ||
-          b.tagName.toLowerCase() === 'shreddit-overflow-menu'
-        );
+    // 1. Open shadowRoot overflow menu button
+    await page.evaluate(() => {
+      const menu = document.querySelector('shreddit-post-overflow-menu');
+      if (menu && menu.shadowRoot) {
+        const btn = menu.shadowRoot.querySelector('button');
+        if (btn) btn.click();
+      }
+    });
+
+    await sleep(800);
+
+    // 2. Click "Sil" / delete inside shadowRoot menu items
+    await page.evaluate(() => {
+      const menu = document.querySelector('shreddit-post-overflow-menu');
+      if (menu && menu.shadowRoot) {
+        const item =
+          menu.shadowRoot.querySelector('#post-overflow-delete div[role="menuitem"]') ||
+          menu.shadowRoot.querySelector('#post-overflow-delete');
+        if (item) item.click();
+      }
+    });
+
+    await sleep(1200);
+
+    // 3. Confirm in modal ("Evet, sil" or "Yes, delete")
+    const deleted = await page.evaluate(() => {
+      function queryDeepAll(sel, root = document.body) {
+        let results = [];
+        if (!root) return results;
+        if (root.querySelectorAll) results.push(...Array.from(root.querySelectorAll(sel)));
+        for (const c of root.querySelectorAll ? root.querySelectorAll('*') : []) {
+          if (c.shadowRoot) results.push(...queryDeepAll(sel, c.shadowRoot));
+        }
+        return results;
+      }
+
+      const allButtons = queryDeepAll('button');
+      const btn = allButtons.find((b) => {
+        const t = (b.innerText || b.textContent || '').trim().toLowerCase();
+        return t === 'evet, sil' || t === 'yes, delete' || t === 'sil' || t === 'delete';
       });
-      if (menuBtn) {
-        menuBtn.click();
+
+      if (btn) {
+        btn.click();
         return true;
       }
       return false;
     });
 
-    if (overflowClicked) {
-      await sleep(1000);
-
-      // 2. Click "Sil" / "Delete" from dropdown
-      const deleteClicked = await page.evaluate(() => {
-        const items = Array.from(document.querySelectorAll('div, button, a, faceplate-menu-item, span'));
-        const delItem = items.find((el) => {
-          const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
-          return txt === 'sil' || txt === 'delete' || txt === 'delete post';
-        });
-        if (delItem) {
-          delItem.click();
-          return true;
-        }
-        return false;
-      });
-
-      if (deleteClicked) {
-        await sleep(1000);
-
-        // 3. Confirm deletion in modal
-        await page.evaluate(() => {
-          const modalBtns = Array.from(document.querySelectorAll('button'));
-          const confirmBtn = modalBtns.find((b) => {
-            const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-            return txt === 'sil' || txt === 'delete';
-          });
-          if (confirmBtn) confirmBtn.click();
-        });
-
-        await sleep(2000);
-        return true;
-      }
-    }
+    await sleep(2500);
+    return deleted;
   } catch (err) {
-    // ignore
+    return false;
   }
-  return false;
 }
 
 async function runSocialAgent(options = {}) {
@@ -295,8 +290,8 @@ async function runSocialAgent(options = {}) {
         continue;
       }
 
-      logger.info('Post gönderildi. Reddit filtre analizini beklemek için 18 saniye bekleniyor...');
-      await sleep(18000);
+      logger.info('Post gönderildi. Reddit asenkron spam filtresini gözlemlemek için 65 saniye bekleniyor...');
+      await sleep(65000);
 
       // Check if removed by Reddit filters
       const wasRemoved = await checkIfRemoved(page);
