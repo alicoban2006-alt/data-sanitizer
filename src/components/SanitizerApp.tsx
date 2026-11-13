@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { 
   Copy, 
   Check, 
@@ -13,7 +14,9 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  Code
+  Code,
+  ArrowRight,
+  BookOpen
 } from 'lucide-react';
 import { Navbar } from './Navbar';
 import { Toolbar } from './Toolbar';
@@ -23,10 +26,18 @@ import { FormatConverterView } from './FormatConverterView';
 import { sanitizeData, DEFAULT_OPTIONS, SanitizerOptions } from '@/lib/sanitizer';
 import { SAMPLES, SampleData } from '@/lib/samples';
 import { Language, translations } from '@/lib/i18n';
+import { SeoPageConfig, SEO_PAGES } from '@/lib/seo-pages';
 
-export function SanitizerApp() {
-  const [input, setInput] = useState<string>(SAMPLES[0].data);
-  const [options, setOptions] = useState<SanitizerOptions>(DEFAULT_OPTIONS);
+interface SanitizerAppProps {
+  seoPage?: SeoPageConfig;
+}
+
+export function SanitizerApp({ seoPage }: SanitizerAppProps) {
+  const [input, setInput] = useState<string>(seoPage ? seoPage.sampleInput : SAMPLES[0].data);
+  const [options, setOptions] = useState<SanitizerOptions>({
+    ...DEFAULT_OPTIONS,
+    ...(seoPage?.initialOptions || {}),
+  });
   const [copied, setCopied] = useState<boolean>(false);
   const [isCoffeeOpen, setIsCoffeeOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -38,7 +49,9 @@ export function SanitizerApp() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
   // Tab state: 'sanitizer' vs 'converter'
-  const [activeTab, setActiveTab] = useState<'sanitizer' | 'converter'>('sanitizer');
+  const [activeTab, setActiveTab] = useState<'sanitizer' | 'converter'>(
+    seoPage?.initialTab || 'sanitizer'
+  );
 
   // Load language and theme from localStorage on client mount
   useEffect(() => {
@@ -178,10 +191,10 @@ export function SanitizerApp() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200/60 dark:border-neutral-800/60 pb-4">
           <div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
-              <span>{t.heroTitle}</span>
+              <span>{seoPage ? seoPage[lang].heroTitle : t.heroTitle}</span>
             </h1>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 max-w-2xl">
-              {t.heroSubtitle}
+              {seoPage ? seoPage[lang].heroSubtitle : t.heroSubtitle}
             </p>
           </div>
 
@@ -211,6 +224,9 @@ export function SanitizerApp() {
           <FormatConverterView 
             onNotify={showToast} 
             lang={lang}
+            initialInput={seoPage?.initialTab === 'converter' ? seoPage.sampleInput : undefined}
+            initialFromFormat={seoPage?.initialFromFormat}
+            initialToFormat={seoPage?.initialToFormat}
           />
         ) : (
           /* Sanitizer & Repair View */
@@ -438,6 +454,60 @@ export function SanitizerApp() {
           </>
         )}
 
+        {/* Programmatic SEO Technical Guide (Rendered on specialized routes) */}
+        {seoPage && (
+          <article className="mt-4 p-6 sm:p-8 rounded-2xl bg-white dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-6">
+            <div className="flex items-center gap-2.5 border-b border-neutral-200 dark:border-neutral-800 pb-4">
+              <BookOpen className="w-5 h-5 text-cyan-500 shrink-0" />
+              <h2 className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white">
+                {seoPage[lang].articleTitle}
+              </h2>
+            </div>
+
+            <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              {seoPage[lang].intro}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              <section className="space-y-2.5">
+                <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  {seoPage[lang].whyTitle}
+                </h3>
+                {seoPage[lang].whyParagraphs.map((para, idx) => (
+                  <p key={idx} className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    {para}
+                  </p>
+                ))}
+              </section>
+
+              <section className="space-y-2.5">
+                <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500" />
+                  {seoPage[lang].howTitle}
+                </h3>
+                {seoPage[lang].howParagraphs.map((para, idx) => (
+                  <p key={idx} className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    {para}
+                  </p>
+                ))}
+              </section>
+
+              <section className="space-y-2.5">
+                <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  {seoPage[lang].privacyTitle}
+                </h3>
+                {seoPage[lang].privacyParagraphs.map((para, idx) => (
+                  <p key={idx} className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    {para}
+                  </p>
+                ))}
+              </section>
+            </div>
+          </article>
+        )}
+
         {/* Human, authentic developer value props */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-800/60 text-neutral-500 dark:text-neutral-400 text-xs">
           <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/60 shadow-xs">
@@ -470,6 +540,43 @@ export function SanitizerApp() {
             </div>
           </div>
         </div>
+
+        {/* Programmatic SEO Internal Linking Directory */}
+        <section className="pt-4 border-t border-neutral-200 dark:border-neutral-800/60">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              {lang === 'tr' ? 'Özel Geliştirici Araçları & Rehberler' : 'Specialized Developer Utilities & Guides'}
+            </h3>
+            {seoPage && (
+              <Link
+                href="/"
+                className="text-xs font-medium text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1"
+              >
+                <span>{lang === 'tr' ? 'Ana Araca Dön' : 'All-in-One Sanitizer'}</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {SEO_PAGES.map((page) => {
+              const isCurrent = seoPage?.slug === page.slug;
+              return (
+                <Link
+                  key={page.slug}
+                  href={`/${page.slug}`}
+                  className={`group flex items-center justify-between px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                    isCurrent
+                      ? 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-400 dark:border-cyan-700 text-cyan-700 dark:text-cyan-300'
+                      : 'bg-white dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800/80 text-neutral-700 dark:text-neutral-300 hover:border-cyan-500/50 hover:text-cyan-600 dark:hover:text-cyan-300'
+                  }`}
+                >
+                  <span className="truncate">{page[lang].shortLabel}</span>
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
@@ -486,7 +593,7 @@ export function SanitizerApp() {
               {t.buyCoffee} ☕
             </button>
             <a
-              href="https://github.com"
+              href="https://github.com/alicoban2006-alt/data-sanitizer"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"

@@ -23,13 +23,22 @@ import { StatsBar } from './StatsBar';
 interface FormatConverterViewProps {
   onNotify: (msg: string) => void;
   lang: Language;
+  initialInput?: string;
+  initialFromFormat?: SupportedFormat | 'auto';
+  initialToFormat?: SupportedFormat;
 }
 
-export function FormatConverterView({ onNotify, lang }: FormatConverterViewProps) {
+export function FormatConverterView({
+  onNotify,
+  lang,
+  initialInput,
+  initialFromFormat = 'auto',
+  initialToFormat = 'json',
+}: FormatConverterViewProps) {
   const t = translations[lang];
-  const [input, setInput] = useState<string>(SAMPLES[4].data); // CSV sample default
-  const [fromFormat, setFromFormat] = useState<SupportedFormat | 'auto'>('auto');
-  const [toFormat, setToFormat] = useState<SupportedFormat>('json');
+  const [input, setInput] = useState<string>(initialInput ?? SAMPLES[4].data); // CSV sample default
+  const [fromFormat, setFromFormat] = useState<SupportedFormat | 'auto'>(initialFromFormat);
+  const [toFormat, setToFormat] = useState<SupportedFormat>(initialToFormat);
   const [copied, setCopied] = useState<boolean>(false);
 
   // Pure memoized conversion without side effects or parent re-renders

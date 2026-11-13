@@ -178,6 +178,12 @@ export function repairJsonString(input: string): { repaired: string; changed: bo
   let text = input.trim();
   const original = text;
 
+  // 0. Strip Markdown code fences from LLM outputs (e.g. ```json ... ```)
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json|jsonc|javascript|js|python|py)?\s*\r?\n?/i, '');
+    text = text.replace(/\r?\n?```\s*$/i, '').trim();
+  }
+
   // If input looks like stringified JSON that was wrapped in quotes, unwrap it
   if (
     (text.startsWith('"{') && text.endsWith('}"')) ||

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Coffee, ShieldCheck, Zap, Sun, Moon, ArrowRightLeft, FileCode2, Globe } from 'lucide-react';
 import { Language, translations } from '@/lib/i18n';
 
@@ -29,8 +30,8 @@ export function Navbar({
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-500 to-indigo-500 p-[1px] shadow-sm shadow-cyan-500/20 shrink-0">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-500 to-indigo-500 p-[1px] shadow-sm shadow-cyan-500/20 shrink-0 group-hover:scale-105 transition-transform">
             <div className="w-full h-full bg-white dark:bg-neutral-950 rounded-[11px] flex items-center justify-center">
               <Zap className="w-4 h-4 text-cyan-600 dark:text-cyan-400 fill-cyan-400/20" />
             </div>
@@ -50,7 +51,7 @@ export function Navbar({
               {t.brandSubtitle}
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Center: Tabs Switcher (Sanitizer vs Converter) */}
         <div className="flex items-center bg-neutral-100 dark:bg-neutral-900 p-1 rounded-xl border border-neutral-200 dark:border-neutral-800">
