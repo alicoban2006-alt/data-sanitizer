@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Code,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Coffee
 } from 'lucide-react';
 import { Navbar } from './Navbar';
 import { Toolbar } from './Toolbar';
@@ -227,6 +228,7 @@ export function SanitizerApp({ seoPage }: SanitizerAppProps) {
             initialInput={seoPage?.initialTab === 'converter' ? seoPage.sampleInput : undefined}
             initialFromFormat={seoPage?.initialFromFormat}
             initialToFormat={seoPage?.initialToFormat}
+            onOpenCoffee={() => setIsCoffeeOpen(true)}
           />
         ) : (
           /* Sanitizer & Repair View */
@@ -377,9 +379,19 @@ export function SanitizerApp({ seoPage }: SanitizerAppProps) {
                       </span>
                     )}
                   </div>
-                  <span className="text-emerald-600 dark:text-emerald-400/80 font-medium hidden sm:inline">
-                    {t.realtimeSync}
-                  </span>
+                  {result.output ? (
+                    <button
+                      onClick={() => setIsCoffeeOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/25 font-sans font-medium transition-colors"
+                    >
+                      <Coffee className="w-3 h-3" />
+                      <span>{lang === 'tr' ? 'İşine yaradı mı? Destek Ol' : 'Saved you time? Support DataPurge'}</span>
+                    </button>
+                  ) : (
+                    <span className="text-emerald-600 dark:text-emerald-400/80 font-medium hidden sm:inline">
+                      {t.realtimeSync}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

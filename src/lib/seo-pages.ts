@@ -599,6 +599,303 @@ spec:
       ],
     },
   },
+  {
+    slug: 'redact-api-keys-from-logs',
+    metaTitle: 'Redact API Keys, JWTs & PII from Logs Online (100% Client-Side) — DataPurge',
+    metaDescription:
+      'Mask and redact OpenAI sk- keys, GitHub tokens, AWS secrets, Bearer JWTs, emails, and IP addresses from server logs locally in your browser. Zero telemetry.',
+    keywords: [
+      'redact api keys from logs',
+      'mask sensitive data in logs',
+      'anonymize json logs online',
+      'remove secrets before pasting to chatgpt',
+      'client side pii redactor',
+    ],
+    initialTab: 'sanitizer',
+    initialOptions: {
+      maskSensitiveData: true,
+      repairJson: true,
+      stripInvisibleChars: true,
+      stripAnsi: true,
+    },
+    sampleInput: `[2026-04-12T10:15:32Z] INFO AuthService: User alice@example.com logged in from 192.168.1.42
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U
+OPENAI_API_KEY=sk-proj-aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890abcd
+GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz12`,
+    en: {
+      heroTitle: 'Redact API Keys & PII from Logs Before Sharing',
+      heroSubtitle:
+        'Automatically mask OpenAI keys, GitHub tokens, Bearer JWTs, emails, and IPv4 addresses 100% locally before pasting logs into AI chats or bug trackers.',
+      shortLabel: 'Redact API Keys',
+      articleTitle: 'How to Safely Redact API Keys and Sensitive PII from Server Logs',
+      intro:
+        'Developers frequently copy-paste stack traces, crash dumps, and HTTP debug logs into ChatGPT, Claude, GitHub Issues, or Slack. Unfortunately, those logs often contain live API keys, Bearer JWT tokens, user email addresses, and internal IP addresses.',
+      whyTitle: 'Why does this problem happen?',
+      whyParagraphs: [
+        'Debug loggers and environment dumps serialize HTTP headers, database connection strings, and request payloads verbatim. Manually hunting for every sk- key, ghp_ token, or email address in a 500-line log file is slow and error-prone.',
+        'Once a secret is pasted into a third-party cloud tool or public issue, it can be stored in prompt history or indexed, forcing emergency key rotation.',
+      ],
+      howTitle: 'How to solve it?',
+      howParagraphs: [
+        'Paste your raw log or JSON payload into the editor above with Sensitive Data Masking enabled. DataPurge scans for common secret patterns (OpenAI keys, GitHub tokens, AWS access keys, Bearer JWTs, emails, and IPv4s) and replaces them with safe [REDACTED_*] placeholders.',
+        'You can then safely copy the sanitized log for debugging, AI prompting, or incident reports.',
+      ],
+      privacyTitle: 'Why use 100% Client-Side (Zero-Telemetry)?',
+      privacyParagraphs: [
+        'Uploading unredacted logs containing live API keys to a server-side redaction website defeats the entire purpose of redacting them.',
+        'DataPurge runs every regex scan exclusively inside your browser tab with zero network requests, keeping your secrets strictly on your machine.',
+      ],
+    },
+    tr: {
+      heroTitle: 'Loglardaki API Anahtarlarını ve Kişisel Verileri Maskeleyin',
+      heroSubtitle:
+        'OpenAI anahtarlarını, GitHub tokenlarını, Bearer JWT\'leri, e-postaları ve IP adreslerini paylaşmadan önce %100 tarayıcıda otomatik sansürleyin.',
+      shortLabel: 'API Key Sansürle',
+      articleTitle: 'Sunucu Loglarından API Anahtarlarını ve Hassas Verileri Güvenle Temizleme',
+      intro:
+        'Geliştiriciler hata ayıklarken log çıktılarını sık sık ChatGPT, Claude, GitHub Issues veya Slack kanallarına yapıştırır. Ancak bu logların içinde çoğu zaman canlı API anahtarları, JWT tokenlar, kullanıcı e-postaları ve iç ağ IP adresleri gizlidir.',
+      whyTitle: 'Neden bu risk oluşur?',
+      whyParagraphs: [
+        'Hata ayıklama logları HTTP başlıklarını ve ortam değişkenlerini olduğu gibi kaydeder. Yüzlerce satırlık bir log dosyasında tüm sk- anahtarlarını, ghp_ tokenlarını veya e-postaları elle bulup silmek hem yavaştır hem de gözden kaçma riski taşır.',
+        'Tek bir anahtarın bulut tabanlı bir sohbet botuna veya herkese açık bir hata kaydına sızması bile acil anahtar iptali gerektirir.',
+      ],
+      howTitle: 'Nasıl çözülür?',
+      howParagraphs: [
+        'Ham logunuzu veya JSON çıktınızı yukarıdaki editöre yapıştırın. Hassas Veri Maskeleme özelliği OpenAI anahtarlarını, GitHub tokenlarını, AWS erişim anahtarlarını, Bearer JWT\'leri, e-postaları ve IPv4 adreslerini anında [REDACTED_*] etiketleriyle değiştirir.',
+        'Temizlenmiş çıktıyı güvenle kopyalayıp yapay zeka araçlarında veya hata raporlarında kullanabilirsiniz.',
+      ],
+      privacyTitle: 'Neden %100 Client-Side (Zero-Telemetry) kullanmalısınız?',
+      privacyParagraphs: [
+        'İçinde canlı API anahtarı barındıran bir logu temizlemek için sunucu tabanlı bir siteye yüklemek, gizlilik amacını tamamen ortadan kaldırır.',
+        'DataPurge tüm maskeleme kurallarını yalnızca tarayıcı belleğinizde çalıştırır; sunucuya hiçbir veri gönderilmez.',
+      ],
+    },
+  },
+  {
+    slug: 'clean-ansi-terminal-logs',
+    metaTitle: 'Remove ANSI Color Codes from Terminal Logs Online — DataPurge',
+    metaDescription:
+      'Strip ANSI escape sequences ([31m, [0m, [1;32m) from Docker, CI/CD, GitHub Actions, and Node.js terminal logs instantly in your browser.',
+    keywords: [
+      'remove ansi codes online',
+      'strip ansi escape sequences',
+      'clean terminal log output',
+      'remove color codes from ci logs',
+      'ansi log cleaner',
+    ],
+    initialTab: 'sanitizer',
+    initialOptions: {
+      stripAnsi: true,
+      stripInvisibleChars: true,
+      trimWhitespace: true,
+      collapseNewlines: true,
+      repairJson: false,
+    },
+    sampleInput: `\u001b[32m✓\u001b[39m Build succeeded in \u001b[1m1.42s\u001b[22m
+\u001b[31mERR!\u001b[39m \u001b[33mWARN\u001b[39m Deprecated package found: \u001b[36mleft-pad@1.3.0\u001b[39m
+\u001b[90m2026-04-12 14:22:01\u001b[39m [worker-1] Connection reset by peer`,
+    en: {
+      heroTitle: 'Strip ANSI Escape & Color Codes from Terminal Logs',
+      heroSubtitle:
+        'Clean unreadable [31m, [0m, and cursor escape sequences from CI/CD, Docker, and CLI outputs into crisp plain text.',
+      shortLabel: 'Clean ANSI Logs',
+      articleTitle: 'How to Strip ANSI Color and Escape Codes from CLI & CI/CD Logs',
+      intro:
+        'Modern CLI tools, Docker containers, Jest test runners, and GitHub Actions pipelines emit ANSI escape sequences to colorize terminal output. When redirected to a file or copied into a text editor, those colors turn into noisy garbage like [31m and [39m.',
+      whyTitle: 'Why does this problem happen?',
+      whyParagraphs: [
+        'Terminals interpret ESC (\\x1b or \\u001b) sequences as foreground colors, bold text, or cursor movements. Plain text editors, Markdown documents, and log search tools display the raw bracketed codes instead.',
+        'Those stray escape sequences break regex searches, bloat ticket descriptions, and confuse LLM context windows when debugging build failures.',
+      ],
+      howTitle: 'How to solve it?',
+      howParagraphs: [
+        'Paste your raw terminal or CI output into the editor above. DataPurge strips all ANSI SGR color codes, cursor sequences, and trailing whitespace while preserving your actual log lines and timestamps.',
+        'Copy or download the clean plain-text log in one click.',
+      ],
+      privacyTitle: 'Why use 100% Client-Side (Zero-Telemetry)?',
+      privacyParagraphs: [
+        'CI/CD and build logs frequently expose internal package names, repository paths, and environment metadata.',
+        'DataPurge processes every byte locally in your browser with zero server uploads or telemetry.',
+      ],
+    },
+    tr: {
+      heroTitle: 'Terminal Loglarından ANSI Renk Kodlarını Temizleyin',
+      heroSubtitle:
+        'Docker, CI/CD, GitHub Actions ve CLI çıktılarındaki [31m, [0m gibi okunaksız ANSI kaçış karakterlerini anında düz metne çevirin.',
+      shortLabel: 'ANSI Log Temizle',
+      articleTitle: 'Terminal ve CI/CD Loglarından ANSI Kaçış Kodlarını Temizleme',
+      intro:
+        'Modern CLI araçları, Docker konteynerleri ve CI/CD boru hatları terminal çıktısını renklendirmek için ANSI kaçış dizileri üretir. Bu çıktılar bir dosyaya kaydedildiğinde veya metin editörüne yapıştırıldığında [31m ve [39m gibi karmaşık kodlara dönüşür.',
+      whyTitle: 'Neden bu sorun oluşur?',
+      whyParagraphs: [
+        'Terminaller ESC (\\x1b) ile başlayan karakter dizilerini renk veya kalın yazı komutu olarak yorumlar. Ancak düz metin editörleri, hata takip sistemleri ve dokümantasyon araçları bu kodları ham metin olarak gösterir.',
+        'Bu görünmez ve köşeli parantezli kodlar log aramalarını bozar ve hata ayıklamayı zorlaştırır.',
+      ],
+      howTitle: 'Nasıl çözülür?',
+      howParagraphs: [
+        'Ham terminal veya build logunuzu yukarıdaki alana yapıştırın. DataPurge tüm ANSI renk ve imleç kodlarını, satır sonu boşluklarını temizleyerek okunabilir düz metin üretir.',
+        'Tek tıkla temizlenmiş logu kopyalayın veya indirin.',
+      ],
+      privacyTitle: 'Neden %100 Client-Side (Zero-Telemetry) kullanmalısınız?',
+      privacyParagraphs: [
+        'Build ve CI/CD logları genellikle özel paket adlarını, sunucu dosya yollarını ve sistem detaylarını içerir.',
+        'DataPurge tüm temizleme işlemini tarayıcınızda yapar; verileriniz sunucuya gönderilmez.',
+      ],
+    },
+  },
+  {
+    slug: 'json-to-yaml-client-side',
+    metaTitle: 'JSON to YAML Converter Online (100% Client-Side, No Upload) — DataPurge',
+    metaDescription:
+      'Convert JSON configs to clean YAML locally in your browser for Kubernetes, Docker Compose, and GitHub Actions. Zero server uploads.',
+    keywords: [
+      'json to yaml online',
+      'client side json to yaml converter',
+      'convert json to kubernetes yaml',
+      'private json to yaml tool',
+      'json yaml converter browser',
+    ],
+    initialTab: 'converter',
+    initialFromFormat: 'json',
+    initialToFormat: 'yaml',
+    sampleInput: `{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "datapurge-web",
+    "labels": {
+      "app": "datapurge",
+      "tier": "frontend"
+    }
+  },
+  "spec": {
+    "replicas": 3,
+    "ports": [80, 443]
+  }
+}`,
+    en: {
+      heroTitle: 'Convert JSON to YAML 100% Client-Side',
+      heroSubtitle:
+        'Transform JSON objects and API payloads into clean, properly indented YAML for Kubernetes, Helm, and CI/CD pipelines without uploading data.',
+      shortLabel: 'JSON to YAML',
+      articleTitle: 'Converting JSON to Clean YAML Privately in Your Browser',
+      intro:
+        'While REST APIs and package configs speak JSON, DevOps tools like Kubernetes, Docker Compose, Ansible, and GitHub Actions prefer human-readable YAML. Converting between the two manually often introduces indentation bugs.',
+      whyTitle: 'Why convert JSON to YAML with a parser?',
+      whyParagraphs: [
+        'YAML relies strictly on 2-space indentation and exact nesting for arrays and maps. Removing braces and quotes by hand on nested Kubernetes manifests or OpenAPI specs easily causes subtle syntax errors.',
+        'A proper AST-backed converter guarantees valid YAML output that preserves booleans, numbers, nested objects, and arrays.',
+      ],
+      howTitle: 'How to solve it?',
+      howParagraphs: [
+        'Paste your JSON into the left editor above. DataPurge validates the JSON structure and renders clean, 2-space indented YAML in real time on the right.',
+        'Copy the YAML directly or download it as a .yaml file for your repository.',
+      ],
+      privacyTitle: 'Why use 100% Client-Side (Zero-Telemetry)?',
+      privacyParagraphs: [
+        'Infrastructure manifests and service configs often contain internal hostnames, port mappings, and deployment topology.',
+        'DataPurge converts JSON to YAML entirely in browser memory with zero network calls or analytics.',
+      ],
+    },
+    tr: {
+      heroTitle: 'JSON Verisini %100 Tarayıcıda YAML Formatına Çevirin',
+      heroSubtitle:
+        'Kubernetes, Docker Compose ve GitHub Actions için JSON yapılandırmalarını sunucuya yüklemeden temiz YAML çıktısına dönüştürün.',
+      shortLabel: 'JSON → YAML',
+      articleTitle: 'Veriyi Sunucuya Göndermeden JSON’dan YAML’a Dönüşüm',
+      intro:
+        'REST API\'ler ve yazılım paketleri JSON kullanırken; Kubernetes, Docker Compose, Ansible ve GitHub Actions gibi DevOps araçları okunabilirliği yüksek YAML formatını tercih eder.',
+      whyTitle: 'Neden ayrıştırıcı tabanlı dönüştürücü kullanmalısınız?',
+      whyParagraphs: [
+        'YAML girintilere (indentation) karşı son derece hassastır. İç içe geçmiş JSON objelerindeki süslü parantezleri ve tırnakları elle silmeye çalışmak sıklıkla girinti hatalarına yol açar.',
+        'Gerçek bir ayrıştırıcı sayıları, boolean değerleri, dizileri ve objeleri hatasız biçimde YAML yapısına aktarır.',
+      ],
+      howTitle: 'Nasıl çözülür?',
+      howParagraphs: [
+        'JSON verinizi sol editöre yapıştırın. DataPurge veriyi anında doğrulayıp sağ tarafta düzgün girintili YAML çıktısını oluşturur.',
+        'Çıktıyı tek tıkla kopyalayabilir veya .yaml dosyası olarak indirebilirsiniz.',
+      ],
+      privacyTitle: 'Neden %100 Client-Side (Zero-Telemetry) kullanmalısınız?',
+      privacyParagraphs: [
+        'Altyapı ve servis yapılandırmaları dahili alan adlarını, port haritalarını ve sistem mimarisini ortaya çıkarabilir.',
+        'DataPurge dönüşümü tamamen tarayıcı belleğinizde gerçekleştirir ve hiçbir veriyi dışarı aktarmaz.',
+      ],
+    },
+  },
+  {
+    slug: 'xml-to-json-privacy',
+    metaTitle: 'XML to JSON Converter Online (100% Client-Side & Private) — DataPurge',
+    metaDescription:
+      'Convert XML documents, SOAP payloads, and RSS feeds to structured JSON locally in your browser. Zero server uploads or tracking.',
+    keywords: [
+      'xml to json online',
+      'private xml to json converter',
+      'client side xml parser',
+      'convert soap xml to json',
+      'xml to json no upload',
+    ],
+    initialTab: 'converter',
+    initialFromFormat: 'xml',
+    initialToFormat: 'json',
+    sampleInput: `<invoice id="INV-2026-04">
+  <customer>
+    <name>Acme Corp</name>
+    <tier>enterprise</tier>
+  </customer>
+  <items>
+    <item sku="DP-PRO" qty="2">99.00</item>
+    <item sku="DP-SUP" qty="1">49.00</item>
+  </items>
+</invoice>`,
+    en: {
+      heroTitle: 'Convert XML to JSON Privately in Your Browser',
+      heroSubtitle:
+        'Parse legacy XML documents, SOAP responses, and configuration files into clean JSON locally with zero server uploads.',
+      shortLabel: 'XML to JSON',
+      articleTitle: 'How to Convert Sensitive XML Documents to JSON Without Uploading Data',
+      intro:
+        'Enterprise integrations, banking APIs, SOAP services, and legacy configs still rely heavily on XML. Modern frontend and Node.js applications, however, consume JSON much more naturally.',
+      whyTitle: 'Why is manual XML to JSON conversion error-prone?',
+      whyParagraphs: [
+        'XML mixes attributes, nested elements, repeated sibling tags, and text nodes. Converting complex XML hierarchies by hand is tedious and easily drops attributes or misrepresents repeated elements.',
+        'Even worse, pasting proprietary invoice XMLs or SOAP responses into random online converters risks exposing confidential business records.',
+      ],
+      howTitle: 'How to solve it?',
+      howParagraphs: [
+        'Paste your XML document into the left panel above. DataPurge parses the XML tree locally and outputs formatted JSON with attributes and nested arrays preserved.',
+        'Copy or download the resulting .json file immediately.',
+      ],
+      privacyTitle: 'Why use 100% Client-Side (Zero-Telemetry)?',
+      privacyParagraphs: [
+        'XML payloads often represent financial invoices, healthcare records, or enterprise ERP feeds subject to strict compliance rules.',
+        'DataPurge processes XML strictly inside your browser with zero server communication, ensuring complete data sovereignty.',
+      ],
+    },
+    tr: {
+      heroTitle: 'Hassas XML Dosyalarını %100 Client-Side Olarak JSON’a Çevirin',
+      heroSubtitle:
+        'Kurumsal XML belgelerini, SOAP yanıtlarını ve yapılandırma dosyalarını sunucuya yüklemeden tarayıcınızda güvenli JSON formatına dönüştürün.',
+      shortLabel: 'XML → JSON',
+      articleTitle: 'Hassas XML Verilerini Sunucuya Göndermeden JSON’a Dönüştürme',
+      intro:
+        'Kurumsal entegrasyonlar, bankacılık servisleri ve SOAP API\'leri halen yoğun olarak XML formatını kullanır. Modern web uygulamaları ve analiz araçları ise JSON ile çok daha hızlı çalışır.',
+      whyTitle: 'Neden elle dönüştürmek veya bulut siteleri kullanmak risklidir?',
+      whyParagraphs: [
+        'XML belgeleri nitelikleri (attributes), tekrarlayan etiketleri ve iç içe düğümleri bir arada barındırır; elle JSON\'a çevirmek hem zaman alır hem de veri kaybına yol açar.',
+        'Fatura, müşteri veya ERP kayıtları içeren XML dosyalarını sunucu tabanlı web sitelerine yüklemek ciddi gizlilik ve uyumluluk ihlallerine neden olabilir.',
+      ],
+      howTitle: 'Nasıl çözülür?',
+      howParagraphs: [
+        'XML verinizi sol editöre yapıştırın. DataPurge XML ağacını yerel olarak ayrıştırıp tüm nitelikleri ve listeleri koruyarak sağ tarafta temiz JSON üretir.',
+        'Oluşan JSON çıktısını tek tıkla kopyalayabilir veya indirebilirsiniz.',
+      ],
+      privacyTitle: 'Neden %100 Client-Side (Zero-Telemetry) kullanmalısınız?',
+      privacyParagraphs: [
+        'Finansal belgeler ve kurumsal sistem çıktıları üçüncü taraf sunuculara asla ulaşmamalıdır.',
+        'DataPurge tüm XML ayrıştırma işlemini yalnızca tarayıcınızda yapar; ağ trafiği oluşturmaz.',
+      ],
+    },
+  },
 ];
 
 export function getSeoPageBySlug(slug: string): SeoPageConfig | undefined {

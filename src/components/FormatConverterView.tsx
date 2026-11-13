@@ -9,7 +9,8 @@ import {
   ClipboardPaste, 
   Trash2, 
   AlertCircle, 
-  CheckCircle2
+  CheckCircle2,
+  Coffee
 } from 'lucide-react';
 import { 
   SupportedFormat, 
@@ -26,6 +27,7 @@ interface FormatConverterViewProps {
   initialInput?: string;
   initialFromFormat?: SupportedFormat | 'auto';
   initialToFormat?: SupportedFormat;
+  onOpenCoffee?: () => void;
 }
 
 export function FormatConverterView({
@@ -34,6 +36,7 @@ export function FormatConverterView({
   initialInput,
   initialFromFormat = 'auto',
   initialToFormat = 'json',
+  onOpenCoffee,
 }: FormatConverterViewProps) {
   const t = translations[lang];
   const [input, setInput] = useState<string>(initialInput ?? SAMPLES[4].data); // CSV sample default
@@ -330,9 +333,19 @@ export function FormatConverterView({
 
           <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-900/90 border-t border-neutral-200 dark:border-neutral-800 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 flex items-center justify-between">
             <span>{result.output.length} {t.chars} • {outBytes} B</span>
-            <span className="text-emerald-600 dark:text-emerald-400/80 font-medium hidden sm:inline">
-              {t.realtimeSync}
-            </span>
+            {result.output && result.success && onOpenCoffee ? (
+              <button
+                onClick={onOpenCoffee}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/25 font-sans font-medium transition-colors"
+              >
+                <Coffee className="w-3 h-3" />
+                <span>{lang === 'tr' ? 'İşine yaradı mı? Destek Ol' : 'Saved you time? Support DataPurge'}</span>
+              </button>
+            ) : (
+              <span className="text-emerald-600 dark:text-emerald-400/80 font-medium hidden sm:inline">
+                {t.realtimeSync}
+              </span>
+            )}
           </div>
         </div>
       </div>

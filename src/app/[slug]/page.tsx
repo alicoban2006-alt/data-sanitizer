@@ -55,5 +55,61 @@ export default async function SeoToolPage({ params }: PageProps) {
     notFound();
   }
 
-  return <SanitizerApp seoPage={seoPage} />;
+  const canonicalUrl = `https://data-sanitizer-pied.vercel.app/${seoPage.slug}`;
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: seoPage.metaTitle,
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Web Browser',
+      url: canonicalUrl,
+      description: seoPage.metaDescription,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: seoPage.en.whyTitle,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: seoPage.en.whyParagraphs.join(' '),
+          },
+        },
+        {
+          '@type': 'Question',
+          name: seoPage.en.howTitle,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: seoPage.en.howParagraphs.join(' '),
+          },
+        },
+        {
+          '@type': 'Question',
+          name: seoPage.en.privacyTitle,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: seoPage.en.privacyParagraphs.join(' '),
+          },
+        },
+      ],
+    },
+  ];
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <SanitizerApp seoPage={seoPage} />
+    </>
+  );
 }

@@ -18,5 +18,35 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <SanitizerApp />;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'DataPurge',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web Browser',
+    url: 'https://data-sanitizer-pied.vercel.app',
+    description:
+      'Free, 100% client-side JSON repair, zero-width character stripper, log redactor, and JSON/YAML/XML/CSV converter with zero telemetry.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    featureList: [
+      'Repair broken JSON and Python dicts',
+      'Strip zero-width Unicode characters and ANSI codes',
+      'Redact API keys, JWTs, emails, and IPs locally',
+      'Convert JSON, YAML, XML, and CSV 100% client-side',
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <SanitizerApp />
+    </>
+  );
 }
