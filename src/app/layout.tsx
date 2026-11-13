@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DataPurge — Fast Data Sanitizer & Format Converter for Developers",
   description: "Strip invisible zero-width characters, repair malformed JSON, fix smart quotes, and convert YAML/XML/CSV in real-time. 100% in-browser.",
+  verification: {
+    google: "Zl-I3j4DktRjdPr53NnL0sxn_rzc9iHWuV23zmL4-sI",
+  },
 };
 
 export default function RootLayout({
