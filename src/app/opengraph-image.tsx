@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
-
 export const alt = 'DataPurge — 100% Client-Side JSON Repair, Log Redactor & Data Converter';
 export const size = {
   width: 1200,
