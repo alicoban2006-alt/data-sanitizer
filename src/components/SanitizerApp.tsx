@@ -24,6 +24,7 @@ import { Toolbar } from './Toolbar';
 import { SupportModal } from './SupportModal';
 import { StatsBar } from './StatsBar';
 import { FormatConverterView } from './FormatConverterView';
+import { SEO_TECHNICAL_EXAMPLES } from '@/lib/seo-examples';
 import { sanitizeData, DEFAULT_OPTIONS, SanitizerOptions } from '@/lib/sanitizer';
 import { SAMPLES, SampleData } from '@/lib/samples';
 import { Language, translations } from '@/lib/i18n';
@@ -517,6 +518,39 @@ export function SanitizerApp({ seoPage }: SanitizerAppProps) {
                 ))}
               </section>
             </div>
+
+            {SEO_TECHNICAL_EXAMPLES[seoPage.slug] && (
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                    {lang === 'tr' ? 'Örnek Hata & Dönüşüm (Before → After)' : 'Example Error & Fix (Before → After)'}
+                  </h3>
+                  <code className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20">
+                    {SEO_TECHNICAL_EXAMPLES[seoPage.slug].errorMessage}
+                  </code>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/60 overflow-hidden">
+                    <div className="px-3 py-1.5 text-[11px] font-mono font-semibold text-rose-600 dark:text-rose-400 border-b border-neutral-200 dark:border-neutral-800 bg-rose-500/5">
+                      {lang === 'tr' ? 'Önce (Hatalı / Ham Girdi)' : 'Before (Broken / Raw)'}
+                    </div>
+                    <pre className="p-3 text-xs font-mono text-neutral-700 dark:text-neutral-300 overflow-x-auto leading-relaxed">
+                      <code>{SEO_TECHNICAL_EXAMPLES[seoPage.slug].beforeCode}</code>
+                    </pre>
+                  </div>
+
+                  <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/60 overflow-hidden">
+                    <div className="px-3 py-1.5 text-[11px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 border-b border-neutral-200 dark:border-neutral-800 bg-emerald-500/5">
+                      {lang === 'tr' ? 'Sonra (Temiz / Geçerli Çıktı)' : 'After (Clean / Valid)'}
+                    </div>
+                    <pre className="p-3 text-xs font-mono text-emerald-800 dark:text-emerald-300 overflow-x-auto leading-relaxed">
+                      <code>{SEO_TECHNICAL_EXAMPLES[seoPage.slug].afterCode}</code>
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
           </article>
         )}
 
